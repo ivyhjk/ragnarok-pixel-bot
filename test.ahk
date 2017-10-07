@@ -1,6 +1,7 @@
 ; @autoloot item 747
 ; @autoloot item 748
 ; @autoloot rate 1
+DelayModifier := 1
 DoubleStrafing := 1
 Fly := "F1"
 TotalArrows := 100
@@ -143,8 +144,77 @@ Loop
 }
 
 c::
-InventoryArrows := 0
-CheckForWindArrows()
+MoveArrowsFromStorageToInventory()
+
+ClickOnImage(ImageName, Width, Height)
+{
+    ImageSearch, PixelX, PixelY, %Width%, %Height%, A_ScreenWidth, A_ScreenHeight, %ImageName%
+
+    if ( ! PixelX || ! PixelY) {
+        MsgBox, No image found...
+
+        return
+    }
+
+    X := (PixelX + (Width/4))
+    Y := (PixelY + Height)
+
+    Click, %X%, %Y%
+}
+
+DragAndDropImageToImage(FromImageName, FromWidth, FromHeight, ToImageName, ToWidth, ToHeight)
+{
+    global
+
+    ImageSearch, FromPixelX, FromPixelY, %FromWidth%, %FromHeight%, A_ScreenWidth, A_ScreenHeight, %FromImageName%
+
+    if ( ! FromPixelX || ! FromPixelY) {
+        MsgBox, No FROM image found...
+
+        return
+    }
+
+    FromX := (FromPixelX + (FromWidth/4))
+    FromY := (FromPixelY + FromHeight/2)
+
+    ImageSearch, ToPixelX, ToPixelY, %ToWidth%, %ToHeight%, A_ScreenWidth, A_ScreenHeight, %ToImageName%
+
+    if ( ! ToPixelX || ! ToPixelY) {
+        MsgBox, No TO image found...
+
+        return
+    }
+
+    ToX := (ToPixelX + (ToWidth/4))
+    ToY := (ToPixelY + ToHeight+30)
+
+    MouseMove, FromX, FromY
+    Sleep 200*DelayModifier
+    Click, down
+    Sleep 200*DelayModifier
+    MouseMove, ToX, ToY
+    Click, up
+}
+
+MoveArrowsFromStorageToInventory()
+{
+    global
+
+    delay := 300*DelayModifier
+
+    Send %StorageOpen% ; Open storage.
+    Sleep, %delay%
+    ClickOnImage("storage-ammo.png", 19, 40) ; Click on tab "Ammo".
+    Sleep, %delay%
+    DragAndDropImageToImage("arrow.png", 30, 17, "inventory.png", 275, 16) ; Drag and drop arrows to inventory.
+    Sleep, %delay%
+    SendEvent, %TotalArrows% ; Add N arrows to inventory.
+    Sleep, %delay%
+    Send, {Enter} ; Confirm arrows quantity.
+    Sleep, %delay%
+    ClickOnImage("close-button.png", 33, 16) ; Close the inventory
+    Sleep, %delay%
+}
 
 CheckForWindArrows()
 {
