@@ -139,7 +139,7 @@ Loop
     }
 
     CheckForWindArrows()
-    CheckInventoryFlyWings()
+    ; CheckInventoryFlyWings()
     Fly()
 }
 
@@ -151,9 +151,7 @@ ClickOnImage(ImageName, Width, Height)
     ImageSearch, PixelX, PixelY, %Width%, %Height%, A_ScreenWidth, A_ScreenHeight, %ImageName%
 
     if ( ! PixelX || ! PixelY) {
-        MsgBox, No image found...
-
-        return
+        throw "No image found"
     }
 
     X := (PixelX + (Width/4))
@@ -166,32 +164,32 @@ DragAndDropImageToImage(FromImageName, FromWidth, FromHeight, ToImageName, ToWid
 {
     global
 
+    delay := 200 * DelayModifier
+
+    Sleep, %delay%
     ImageSearch, FromPixelX, FromPixelY, %FromWidth%, %FromHeight%, A_ScreenWidth, A_ScreenHeight, %FromImageName%
 
     if ( ! FromPixelX || ! FromPixelY) {
-        MsgBox, No FROM image found...
-
-        return
+        throw "No FROM image found"
     }
 
     FromX := (FromPixelX + (FromWidth/4))
     FromY := (FromPixelY + FromHeight/2)
 
+    Sleep, %delay%
     ImageSearch, ToPixelX, ToPixelY, %ToWidth%, %ToHeight%, A_ScreenWidth, A_ScreenHeight, %ToImageName%
 
     if ( ! ToPixelX || ! ToPixelY) {
-        MsgBox, No TO image found...
-
-        return
+        throw "No To image found"
     }
 
     ToX := (ToPixelX + (ToWidth/4))
     ToY := (ToPixelY + ToHeight+30)
 
     MouseMove, FromX, FromY
-    Sleep 200*DelayModifier
+    Sleep, %delay%
     Click, down
-    Sleep 200*DelayModifier
+    Sleep, %delay%
     MouseMove, ToX, ToY
     Click, up
 }
@@ -203,16 +201,38 @@ MoveArrowsFromStorageToInventory()
     delay := 300*DelayModifier
 
     Send %StorageOpen% ; Open storage.
+    ; Click on tab "Ammo".
     Sleep, %delay%
-    ClickOnImage("storage-ammo.png", 19, 40) ; Click on tab "Ammo".
+    try {
+        ClickOnImage("storage-ammo.png", 19, 40)
+    } catch e {
+        return
+    }
+
+    ; Drag and drop arrows to inventory.
     Sleep, %delay%
-    DragAndDropImageToImage("arrow.png", 30, 17, "inventory.png", 275, 16) ; Drag and drop arrows to inventory.
+    try {
+        DragAndDropImageToImage("arrow.png", 30, 17, "inventory.png", 275, 16)
+    } catch e {
+        Sleep, %delay%
+        ClickOnImage("close-button.png", 33, 16) ; Close the inventory
+
+        return
+    }
+
     Sleep, %delay%
     SendEvent, %TotalArrows% ; Add N arrows to inventory.
     Sleep, %delay%
     Send, {Enter} ; Confirm arrows quantity.
     Sleep, %delay%
-    ClickOnImage("close-button.png", 33, 16) ; Close the inventory
+
+    ; Close the inventory
+    try {
+        ClickOnImage("close-button.png", 33, 16)
+    } catch e {
+        return
+    }
+
     Sleep, %delay%
 }
 
@@ -353,45 +373,4 @@ CheckForBuf()
         Buf()
         WarpToDungeon()
     }
-}
-
-; Check if the inventory contains "Fly wings",
-; if not, warp to home, click the Shop NPC, go
-; down into the NPC menu, drag and drop the fly wings
-; enter the quantity of fly wings to buy, press the
-; buy button and continue our travel.
-CheckInventoryFlyWings()
-{
-    global
-
-    ; If we have fly wings, do nothing.
-    if (InventoryFlyWings) {
-        return
-    }
-
-    WarpToHome() ; Go home.
-    Sleep 300 ; Wait for warp
-    Click, %ShopPixelX%, %ShopPixelY% ; Click the Shop NPC.
-    Sleep 300 ; Wait for NPC response.
-    ; Click the "buy" button
-    Click, %ShopInitialBuyButtonPixelX%, %ShopInitialBuyButtonPixelY%
-    Sleep 300 ; Wait for NPC display menu.
-
-    ; Click on scroll down
-    Loop, %ShopScrollDownTotal% {
-        Click, %ShopScrollDownPixelX%, %ShopScrollDownPixelY%
-        Sleep 200 ; Wait for scroll down refresh.
-    }
-
-    ; Drag and drop fly wings.
-    MouseClickDrag, Left, ShopFlyWingsPixelX, ShopFlyWingsPixelY, ShopFlyWingsDropPixelX, ShopFlyWingsDropPixelY, 20
-
-    SendEvent, %TotalFlyWings% ; Add N fly wings to purchase.
-    Send, {Enter}
-    Click, %ShopFinalBuyButtonPielX%, %ShopFinalBuyButtonPielY%
-    Sleep 200 ; Wait for menu fade out.
-    ; Fill our inventory with fly wings
-    InventoryFlyWings := TotalFlyWings
-    Buf() ; Buf our character.
-    WarpToDungeon() ; Go back to dungeon.
 }
