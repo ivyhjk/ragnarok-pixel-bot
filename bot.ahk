@@ -66,7 +66,6 @@ HPPixelX := 65
 HPPixelY := 80
 HPEmptyColor := 0xCEC6BD
 
-
 ; ##############
 ; # Arrow shop #
 ; ##############
