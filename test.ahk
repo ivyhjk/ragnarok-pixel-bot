@@ -2,7 +2,7 @@
 ; @autoloot item 748
 ; @autoloot rate 1
 DelayModifier := 1
-DoubleStrafing := 1
+DoubleStrafing := "F2"
 Fly := "F1"
 TotalArrows := 100
 TotalFlyWings := 30
@@ -109,7 +109,7 @@ Loop
         CheckForBuf()
 
         ; Search the square initial pixel.
-        Sleep 600
+        Sleep, 600*DelayModifier
         PixelSearch, PixelX, PixelY, 2, 192, A_ScreenWidth, A_ScreenHeight, %Color%, 3, Fast
 
         ; Pixel not found.
@@ -139,7 +139,6 @@ Loop
     }
 
     CheckForWindArrows()
-    ; CheckInventoryFlyWings()
     Fly()
 }
 
@@ -246,19 +245,19 @@ CheckForWindArrows()
     }
 
     Send %ArrowShopGo% ; Go to arrow's shop map.
-    Sleep 1000 ; Wait for annimation.
+    Sleep, 1000*DelayModifier ; Wait for annimation.
     Click, %ArrowShopGoDownPixelX%, %ArrowShopGoDownPixelY%
-    Sleep 2000 ; Wait for movement.
+    Sleep, 2000*DelayModifier ; Wait for movement.
     ; Click on NPC
     Click, %ArrowShopNPCPixelX%, %ArrowShopNPCPixelY%
-    Sleep 300 ; Wait for NPC display menu.
+    Sleep, 300*DelayModifier ; Wait for NPC display menu.
     ; Click on "buy" button.
     Click, %ArrowShopBuyStartButtonPixelX%, %ArrowShopBuyStartButtonPixelY%
-    Sleep 300 ; Wait for NPC display menu.
+    Sleep, 300*DelayModifier ; Wait for NPC display menu.
     ; Click on scroll down.
     Loop, %ArrowShopScrollDownTotal% {
         Click, %ArrowShopBuyScrollDownPixelX%, %ArrowShopBuyScrollDownPixelY%
-        Sleep 200 ; Wait for scroll down refresh.
+        Sleep, 200*DelayModifier ; Wait for scroll down refresh.
     }
 
     ; Drag and drop wind arrows.
@@ -267,14 +266,14 @@ CheckForWindArrows()
     SendEvent, %TotalArrows% ; Add N fly wings to purchase.
     Send, {Enter}
     Click, %ArrowShopBuyEndButtonPixelX%, %ArrowShopBuyEndButtonPixelY%
-    Sleep 200 ; Wait for menu fade out.
+    Sleep, 200*DelayModifier ; Wait for menu fade out.
     ; Fill our inventory with fly wings
     InventoryArrows := TotalArrows
-    Sleep 200 ; Wait for annimation.
+    Sleep, 200*DelayModifier ; Wait for annimation.
     WarpToHome()
-    Sleep 400 ; Wait for warp.
+    Sleep, 400*DelayModifier ; Wait for warp.
     WarpToDungeon()
-    Sleep 400 ; Wait for warp.
+    Sleep, 400*DelayModifier ; Wait for warp.
 }
 
 InventoryToStorage()
@@ -293,7 +292,7 @@ InventoryToStorage()
     if (ErrorLevel = 0) {
         ; Drag and drop witherless roses from inventory to storage
         MouseClickDrag, Left, RosePixelX+XModifier, RosePixelY+YModifier, StoragePixelX, StoragePixelY, 50
-        Sleep 100 ; Wait for annimation
+        Sleep, 100*DelayModifier ; Wait for annimation
         Send {Enter}
     }
 
@@ -302,12 +301,12 @@ InventoryToStorage()
     if (ErrorLevel = 0) {
         ; Drag and drop witherless roses from inventory to storage
         MouseClickDrag, Left, MirrorPixelX+XModifier, MirrorPixelY+YModifier, StoragePixelX, StoragePixelY, 50
-        Sleep 100 ; Wait for annimation
+        Sleep, 100*DelayModifier ; Wait for annimation
         Send {Enter}
     }
 
     Click, %StorageCloseButtonPixelX%, %StorageCloseButtonPixelY% ; Close the storage.
-    Sleep 100 ; Wait for annimation
+    Sleep, 100*DelayModifier ; Wait for annimation
 }
 
 ; Do a warp to home.
@@ -316,7 +315,7 @@ WarpToHome()
     global
 
     Send !1 ; Warp to home.
-    Sleep 700 ; Wait for warp.
+    Sleep, 700*DelayModifier ; Wait for warp.
 }
 
 ; Do a warp to the dungeon, from home.
@@ -324,9 +323,9 @@ WarpToDungeon()
 {
     global
     Click, %WarperPixelX%, %WarperPixelY% ; Click the Warper NPC.
-    Sleep 700 ; Wait for warper chat.
+    Sleep, 700*DelayModifier ; Wait for warper chat.
     Send {Enter} ; Use the "Last warp" mode.
-    Sleep 1000 ; Wait for warp to dungeon.
+    Sleep, 1000*DelayModifier ; Wait for warp to dungeon.
 }
 
 ; Just fly using "Fly wings"
@@ -337,7 +336,7 @@ Fly()
     InventoryFlyWings := InventoryFlyWings - 1
     ; Fly
     Send {%Fly%}
-    Sleep 300
+    Sleep, 300*DelayModifier
 }
 
 Buf()
@@ -345,13 +344,13 @@ Buf()
     global
 
     Click, %HealerPixelX%, %HealerPixelY% ; Click the Healer NPC.
-    Sleep 300 ; Wait for heal.
+    Sleep, 300*DelayModifier ; Wait for heal.
     Send %TrueSight%
-    Sleep 100 ; Wait for cooldown.
+    Sleep, 100*DelayModifier ; Wait for cooldown.
     Send %AttentionConcentrate%
-    Sleep 100 ; Wait for cooldown.
+    Sleep, 100*DelayModifier ; Wait for cooldown.
     Send %WindWalk%
-    Sleep 500 ; Wait for cooldown.
+    Sleep, 500*DelayModifier ; Wait for cooldown.
 
     InventoryToStorage()
 }
@@ -369,7 +368,7 @@ CheckForBuf()
     ; If SP or HP bar are empty, go to home.
     if (CurrentSPColor = SPEmptyColor || CurrentHPColor = HPEmptyColor) {
         WarpToHome()
-        Sleep 300 ; Wait for warp
+        Sleep, 300*DelayModifier ; Wait for warp
         Buf()
         WarpToDungeon()
     }
