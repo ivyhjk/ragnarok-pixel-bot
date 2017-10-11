@@ -89,7 +89,6 @@ ArrowShopBuyEndButtonPixelY := 507
 ; PLEASE DON'T EDIT THIS.
 InventoryArrows := TotalArrows
 InventoryFlyWings := TotalFlyWings
-TrueSightTime := 30000 ; 30 seconds.
 
 SetKeyDelay 100, 100
 
