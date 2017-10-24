@@ -60,10 +60,29 @@ HPPixelX := 65
 HPPixelY := 80
 HPEmptyColor := 0xCEC6BD
 
+; ##############
+; # Arrow shop #
+; ##############
+ArrowShopGo := "!0"
+ArrowShopGoDownPixelX := 684
+ArrowShopGoDownPixelY := 543
+ArrowShopNPCPixelX := 800
+ArrowShopNPCPixelY := 504
+ArrowShopBuyStartButtonPixelX := 714
+ArrowShopBuyStartButtonPixelY := 612
+ArrowShopBuyScrollDownPixelX := 304
+ArrowShopBuyScrollDownPixelY := 484
+ArrowShopScrollDownTotal := 3
+ArrowShopWindArrowPixelX := 160
+ArrowShopWindArrowPixelY := 466
+ArrowShopDropPixelX := 415
+ArrowShopDropPixelY := 436
+ArrowShopBuyEndButtonPixelX := 505
+ArrowShopBuyEndButtonPixelY := 507
+
 ; PLEASE DON'T EDIT THIS.
 InventoryArrows := TotalArrows
 InventoryFlyWings := TotalFlyWings
-TrueSightTime := 30000 ; 30 seconds.
 
 SetKeyDelay 100, 100
 
@@ -82,7 +101,7 @@ Loop
         CheckForBuf()
 
         ; Search the square initial pixel.
-        Sleep 400
+        Sleep, 600*DelayModifier
         PixelSearch, PixelX, PixelY, 2, 192, A_ScreenWidth, A_ScreenHeight, %Color%, 3, Fast
 
         ; Pixel not found.
@@ -243,7 +262,7 @@ InventoryToStorage()
     if (ErrorLevel = 0) {
         ; Drag and drop witherless roses from inventory to storage
         MouseClickDrag, Left, RosePixelX+XModifier, RosePixelY+YModifier, StoragePixelX, StoragePixelY, 50
-        Sleep 100 ; Wait for annimation
+        Sleep, 100*DelayModifier ; Wait for annimation
         Send {Enter}
     }
 
@@ -252,12 +271,12 @@ InventoryToStorage()
     if (ErrorLevel = 0) {
         ; Drag and drop witherless roses from inventory to storage
         MouseClickDrag, Left, MirrorPixelX+XModifier, MirrorPixelY+YModifier, StoragePixelX, StoragePixelY, 50
-        Sleep 100 ; Wait for annimation
+        Sleep, 100*DelayModifier ; Wait for annimation
         Send {Enter}
     }
 
     Click, %StorageCloseButtonPixelX%, %StorageCloseButtonPixelY% ; Close the storage.
-    Sleep 100 ; Wait for annimation
+    Sleep, 100*DelayModifier ; Wait for annimation
 }
 
 ; Do a warp to home.
@@ -274,9 +293,9 @@ WarpToDungeon()
 {
     global
     Click, %WarperPixelX%, %WarperPixelY% ; Click the Warper NPC.
-    Sleep 700 ; Wait for warper chat.
+    Sleep, 700*DelayModifier ; Wait for warper chat.
     Send {Enter} ; Use the "Last warp" mode.
-    Sleep 1000 ; Wait for warp to dungeon.
+    Sleep, 1000*DelayModifier ; Wait for warp to dungeon.
 }
 
 ; Just fly using "Fly wings"
@@ -287,7 +306,7 @@ Fly()
     InventoryFlyWings := InventoryFlyWings - 1
     ; Fly
     Send {%Fly%}
-    Sleep 300
+    Sleep, 300*DelayModifier
 }
 
 Buf()
@@ -295,13 +314,13 @@ Buf()
     global
 
     Click, %HealerPixelX%, %HealerPixelY% ; Click the Healer NPC.
-    Sleep 300 ; Wait for heal.
+    Sleep, 300*DelayModifier ; Wait for heal.
     Send %TrueSight%
-    Sleep 100 ; Wait for cooldown.
+    Sleep, 100*DelayModifier ; Wait for cooldown.
     Send %AttentionConcentrate%
-    Sleep 100 ; Wait for cooldown.
+    Sleep, 100*DelayModifier ; Wait for cooldown.
     Send %WindWalk%
-    Sleep 500 ; Wait for cooldown.
+    Sleep, 500*DelayModifier ; Wait for cooldown.
 
     InventoryToStorage()
 }
@@ -319,7 +338,7 @@ CheckForBuf()
     ; If SP or HP bar are empty, go to home.
     if (CurrentSPColor = SPEmptyColor || CurrentHPColor = HPEmptyColor) {
         WarpToHome()
-        Sleep 300 ; Wait for warp
+        Sleep, 300*DelayModifier ; Wait for warp
         Buf()
         WarpToDungeon()
     }
