@@ -2,9 +2,9 @@
 ; @autoloot item 748
 ; @autoloot rate 1
 DelayModifier := 1
-DoubleStrafing := 1
+DoubleStrafing := "F2"
 Fly := "F1"
-TotalArrows := 100
+TotalArrows := 500
 TotalFlyWings := 30
 Color := 0x00FF00
 ; If we click the same pixel at least N times, the bot will fly.
@@ -30,27 +30,21 @@ WindWalk := "r"
 ; # Warp to home, heal and go back to dungeon #
 ; #############################################
 ; Binded key with <@go [cityName|cityNumber]>
-WarpToHome := "!1"
+WarpToHome := "!2"
 ; Healer NPC position.
-HealerPixelX := 599
-HealerPixelY := 383
+; go 6
+; HealerPixelX := 599
+; HealerPixelY := 383
+; go 30
+HealerPixelX := 655
+HealerPixelY := 327
 ; Warper NPC position.
-WarperPixelX := 599
-WarperPixelY := 286
-; Shop NPC position.
-ShopPixelX := 597
-ShopPixelY := 489
-ShopInitialBuyButtonPixelX := 716
-ShopInitialBuyButtonPixelY := 609
-ShopScrollDownPixelX := 305
-ShopScrollDownPixelY := 478
-ShopScrollDownTotal := 4
-ShopFlyWingsPixelX := 282
-ShopFlyWingsPixelY := 468
-ShopFlyWingsDropPixelX := 370
-ShopFlyWingsDropPixelY := 400
-ShopFinalBuyButtonPielX := 513
-ShopFinalBuyButtonPielY := 507
+; go 6
+; WarperPixelX := 599
+; WarperPixelY := 286
+; go 30
+WarperPixelX := 706
+WarperPixelY := 333
 
 ; ##########
 ; # SP bar #
@@ -65,27 +59,6 @@ SPEmptyColor := 0xCEC6BD
 HPPixelX := 65
 HPPixelY := 80
 HPEmptyColor := 0xCEC6BD
-
-
-; ##############
-; # Arrow shop #
-; ##############
-ArrowShopGo := "!0"
-ArrowShopGoDownPixelX := 684
-ArrowShopGoDownPixelY := 543
-ArrowShopNPCPixelX := 800
-ArrowShopNPCPixelY := 504
-ArrowShopBuyStartButtonPixelX := 714
-ArrowShopBuyStartButtonPixelY := 612
-ArrowShopBuyScrollDownPixelX := 304
-ArrowShopBuyScrollDownPixelY := 484
-ArrowShopScrollDownTotal := 3
-ArrowShopWindArrowPixelX := 160
-ArrowShopWindArrowPixelY := 466
-ArrowShopDropPixelX := 415
-ArrowShopDropPixelY := 436
-ArrowShopBuyEndButtonPixelX := 505
-ArrowShopBuyEndButtonPixelY := 507
 
 ; PLEASE DON'T EDIT THIS.
 InventoryArrows := TotalArrows
@@ -109,12 +82,11 @@ Loop
         CheckForBuf()
 
         ; Search the square initial pixel.
-        Sleep 600
+        Sleep 400
         PixelSearch, PixelX, PixelY, 2, 192, A_ScreenWidth, A_ScreenHeight, %Color%, 3, Fast
 
         ; Pixel not found.
-        if PixelX =
-        {
+        if ( ! PixelX || ! PixelY){
             break
         }
 
@@ -139,12 +111,11 @@ Loop
     }
 
     CheckForWindArrows()
-    ; CheckInventoryFlyWings()
     Fly()
 }
 
 c::
-MoveArrowsFromStorageToInventory()
+Buf()
 
 ClickOnImage(ImageName, Width, Height)
 {
@@ -188,10 +159,10 @@ DragAndDropImageToImage(FromImageName, FromWidth, FromHeight, ToImageName, ToWid
 
     MouseMove, FromX, FromY
     Sleep, %delay%
-    Click, down
+    Click, down ; Drag.
     Sleep, %delay%
     MouseMove, ToX, ToY
-    Click, up
+    Click, up ; Drop.
 }
 
 MoveArrowsFromStorageToInventory()
@@ -245,36 +216,15 @@ CheckForWindArrows()
         return
     }
 
-    Send %ArrowShopGo% ; Go to arrow's shop map.
-    Sleep 1000 ; Wait for annimation.
-    Click, %ArrowShopGoDownPixelX%, %ArrowShopGoDownPixelY%
-    Sleep 2000 ; Wait for movement.
-    ; Click on NPC
-    Click, %ArrowShopNPCPixelX%, %ArrowShopNPCPixelY%
-    Sleep 300 ; Wait for NPC display menu.
-    ; Click on "buy" button.
-    Click, %ArrowShopBuyStartButtonPixelX%, %ArrowShopBuyStartButtonPixelY%
-    Sleep 300 ; Wait for NPC display menu.
-    ; Click on scroll down.
-    Loop, %ArrowShopScrollDownTotal% {
-        Click, %ArrowShopBuyScrollDownPixelX%, %ArrowShopBuyScrollDownPixelY%
-        Sleep 200 ; Wait for scroll down refresh.
-    }
+    Delay := 200 * DelayModifier
 
-    ; Drag and drop wind arrows.
-    MouseClickDrag, Left, ArrowShopWindArrowPixelX, ArrowShopWindArrowPixelY, ArrowShopDropPixelX, ArrowShopDropPixelY, 100
-
-    SendEvent, %TotalArrows% ; Add N fly wings to purchase.
-    Send, {Enter}
-    Click, %ArrowShopBuyEndButtonPixelX%, %ArrowShopBuyEndButtonPixelY%
-    Sleep 200 ; Wait for menu fade out.
-    ; Fill our inventory with fly wings
-    InventoryArrows := TotalArrows
-    Sleep 200 ; Wait for annimation.
     WarpToHome()
-    Sleep 400 ; Wait for warp.
+    Sleep, %Delay%
+    MoveArrowsFromStorageToInventory()
+    InventoryArrows := TotalArrows
+    Sleep, %Delay%
     WarpToDungeon()
-    Sleep 400 ; Wait for warp.
+    Sleep, %Delay%
 }
 
 InventoryToStorage()
@@ -315,8 +265,8 @@ WarpToHome()
 {
     global
 
-    Send !1 ; Warp to home.
-    Sleep 700 ; Wait for warp.
+    Send %WarpToHome% ; Warp to home.
+    Sleep 1000 * DelayModifier ; Wait for warp.
 }
 
 ; Do a warp to the dungeon, from home.
